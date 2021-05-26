@@ -41,7 +41,6 @@ int main(int argc, char *argv[]) {
   cout << endl << "Aristas:" << endl;
   G = vector< vector<Vertice> >(n, vector<Vertice>(n, 0));
   for (int i = M_INDEX + 1; i < argc; i += 3) {
-    cout << "for" << endl;
     Vertice v = stoi(argv[i]);
     Vertice w = stoi(argv[i+1]);
     Costo c = stoi(argv[i+2]);
