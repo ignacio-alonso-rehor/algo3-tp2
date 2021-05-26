@@ -1,0 +1,16 @@
+{
+  "files.associations": {
+    "iostream": "cpp",
+    "algorithm": "cpp",
+    "chrono": "cpp",
+    "ostream": "cpp",
+    "iosfwd": "cpp",
+    "string": "cpp",
+    "vector": "cpp",
+    "initializer_list": "cpp",
+    "iterator": "cpp"
+  },
+  "markdown-pdf.headerTemplate": "<div />",
+  "markdown-pdf.margin.left": "1.5cm",
+  "markdown-pdf.margin.right": "1.5cm"
+}
