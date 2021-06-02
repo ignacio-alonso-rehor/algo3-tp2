@@ -70,8 +70,12 @@ int main(int argc, char *argv[]) {
 
     auto start = chrono::steady_clock::now();
     
-    // if (s_input_heuristica.compare("nn") == 0) {
+    // if (s_input_heuristica.compare("NN") == 0) {
     //     C = nearestNeighbour(G);
+    // } else if (s_input_heuristica.compare("FI") == 0) {
+    //     C = farthestInsert(G);
+    // } else if (s_input_heuristica.compare("AGM")== 0) {
+    //     C = AGM(G); 
     // }
 
     auto end = chrono::steady_clock::now();
