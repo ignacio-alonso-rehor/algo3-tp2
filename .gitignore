@@ -4,3 +4,6 @@ main
 !main.cpp
 !main_debugging.cpp
 CMakeFiles
+
+obj/
+tp2/TSP
