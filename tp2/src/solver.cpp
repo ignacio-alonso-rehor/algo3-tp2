@@ -6,7 +6,7 @@ Circuito nearestNeighbour(Grafo G)  {
     return C;
 }
 
-Circuito farthestInsert(Grafo G) {
+Circuito farthestInsertion(Grafo G) {
     Circuito C(G.vertices);
 
     return C;
