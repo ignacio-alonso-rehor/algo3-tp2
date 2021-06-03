@@ -18,7 +18,7 @@ Grafo leerInstancia() {
     vector<vector<uint>> C(n+1, vector<uint>(n+1, INF));
 
     uint v, w, c;
-    for (uint i = 0; i < n; ++i) {
+    for (uint i = 0; i < m; ++i) {
         cin >> v >> w >> c;
         C[v][w] = c;
         C[w][v] = c;
@@ -28,6 +28,19 @@ Grafo leerInstancia() {
     G = {n, m, C};
 
     return G;
+}
+
+void imprimirInstancia(Grafo G) {
+    cout << "N: " << G.vertices << ", " << "M: " << G.aristas << endl;
+
+    uint n = G.vertices;
+
+    for (uint i = 1 ; i < n+1; ++i) {
+        for (uint j = 1; j < n+1; ++j) {
+            if (i == j) continue;
+            cout << '(' << i << ", " << j << ") : " << G.costos[i][j] << endl;
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -56,15 +69,8 @@ int main(int argc, char *argv[]) {
 	}
 
     Grafo G = leerInstancia();
-    cout << "N: " << G.vertices << ", " << "M: " << G.aristas << endl;
-
-    uint n = G.vertices;
-
-    for (uint i = 1 ; i < n+1; ++i) {
-        for (uint j = 0; j < n+1; ++j) {
-            cout << '(' << i << ", " << j << ") :" << G.costos[i][j] << endl;
-        }
-    }
+    
+    // imprimirInstancia(G);
 
     Circuito C;
 
