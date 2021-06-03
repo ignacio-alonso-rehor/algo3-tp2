@@ -15,6 +15,9 @@ typedef struct {
     std::vector<std::vector<uint>> costos;
 } Grafo;
 
-typedef std::vector<Vertice> Circuito;
+typedef struct {
+    std::vector<Vertice> vertices;
+    uint costo;
+} Circuito;
 
 #endif // TYPES_H_

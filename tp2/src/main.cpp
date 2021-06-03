@@ -72,12 +72,13 @@ int main(int argc, char *argv[]) {
     
     // imprimirInstancia(G);
 
-    Circuito C;
+    Circuito H;
 
     auto start = chrono::steady_clock::now();
     
-    // if (s_input_heuristica.compare("NN") == 0) {
-    //     C = nearestNeighbour(G);
+    if (s_input_heuristica.compare("NN") == 0) {
+        H = nearestNeighbour(G);
+    }
     // } else if (s_input_heuristica.compare("FI") == 0) {
     //     C = farthestInsertion(G);
     // } else if (s_input_heuristica.compare("AGM")== 0) {
@@ -88,9 +89,10 @@ int main(int argc, char *argv[]) {
 	double totalTime = chrono::duration<double, milli>(end - start).count();
 
 	clog << totalTime << endl;
-	// for (Vertice i = 0; i < n; ++i)
-    //     cout << C[i] << ' ';
-    // cout << endl;
-
+    cout << H.vertices.size() << ' ' << H.costo << endl;
+	for (Vertice v : H.vertices) {
+        cout << v << ' ';
+    }
+    cout << endl;
     return EXIT_SUCCESS;
 }
