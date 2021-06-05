@@ -79,9 +79,9 @@ int main(int argc, char *argv[]) {
     if (s_input_heuristica.compare("NN") == 0) {
         H = nearestNeighbour(G);
     }
-    // } else if (s_input_heuristica.compare("FI") == 0) {
-    //     C = farthestInsertion(G);
-    // } else if (s_input_heuristica.compare("AGM")== 0) {
+     else if (s_input_heuristica.compare("FI") == 0) {
+         H = farthestInsertion(G);
+     }// else if (s_input_heuristica.compare("AGM")== 0) {
     //     C = AGM(G); 
     // }
 
