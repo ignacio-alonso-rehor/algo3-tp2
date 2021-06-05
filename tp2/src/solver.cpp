@@ -40,22 +40,20 @@ Circuito nearestNeighbour(Grafo G)  {
 
  Circuito farthestInsertion(Grafo G) {
      Circuito H;
-     std::vector<uint> marcados(G.vertices + 1, 0);
+     H.costo = 0;
 
      H.vertices.push_back(1);
-     marcados[1] = 1;
 
      Vertice w = initFarthest(G, H);
      H.vertices.push_back(w);
-     marcados[w] = 1;
-     H.costo += 2 * G.costos[1][w]; //1->w y w->1
+     H.costo += G.costos[1][w]; 
 
      while(H.vertices.size() < G.vertices) {
-
-         Vertice v = fSelect(G, H, marcados);
-         marcados[v] = 1;
-         fInsert(G, H, v);
+         Vertice v = fSelect(G, H);         
+         fInsert(G, &H, v);
      }
+
+     H.costo += G.costos[H.vertices.back()][H.vertices.front()];
 
      return H;
  }
@@ -72,54 +70,61 @@ Circuito nearestNeighbour(Grafo G)  {
      return w;
  }
 
- Vertice fSelect(Grafo G, Circuito H, std::vector<uint> marcados) {
-     Vertice v = 0;
+ Vertice fSelect(Grafo G, Circuito H) {
+     Vertice v = 1;
      uint costoMax = 0;  
      for (Vertice u = 1; u < G.vertices + 1; ++u){
-           if (marcados[u] == 0) continue; //solo lo considero si no esta en H
-           uint costoMinParcial = G.costos[u][H.vertices[0]];
-          
-           for (Vertice w : H.vertices){
-               if (u!=w && G.costos[u][w] < costoMinParcial) {
-                   costoMinParcial = G.costos[u][w];
-               }
-           }
 
-           if (costoMinParcial > costoMax) {
-               costoMax = costoMinParcial;
-               v = u;
-           }
-     }      
+        // Iteramos sobre todos los vértices todavía no incluidos en H.
+        auto it = std::find(H.vertices.begin(), H.vertices.end(), u); 
+        if (it != H.vertices.end()) continue;           
+        
+        Vertice w = H.vertices.front();
+        uint costoMinParcial = G.costos[u][w];//2-1...3-1
+        
+        // Buscamos la menor arista hacia un vertice incluido en H.
+        for (uint j = 1; j < H.vertices.size(); ++j){
+            w = H.vertices[j];//4
+            if (G.costos[u][w] < costoMinParcial){//2-4...3-4
+                costoMinParcial = G.costos[u][w];
+            }            
+        }
+
+        // Nos quedamos con la mas lejana
+        if (costoMinParcial > costoMax) {
+            costoMax = costoMinParcial;
+            v = u;
+        }
+     }
      return v;
 }
 
-void fInsert(Grafo G, Circuito H, Vertice v){
-    uint minCosto = std::numeric_limits<int>::max();
-    Vertice pos = H.vertices.back();
+void fInsert(Grafo G, Circuito* H, Vertice v){
 
-    for (uint u = 0; u < H.vertices.size(); ++u){
-        if (u == H.vertices.size() - 1) {
-            uint prev = G.costos[H.vertices[u]][H.vertices[0]];
-            uint post = G.costos[H.vertices[u]][v] + G.costos[v][H.vertices[0]];
-            if (post - prev < minCosto) {
-                minCosto = post - prev;
-                pos = H.vertices.front();
-            } 
-        } else {
-            uint prev = G.costos[H.vertices[u]][H.vertices[u+1]];
-            uint post = G.costos[H.vertices[u]][v] + G.costos[v][H.vertices[u+1]];
-            if (post - prev < minCosto) {
-                minCosto = post - prev;
-                pos = H.vertices[u+1];
-            } 
+    Vertice u = H->vertices.back();
+    Vertice w = H->vertices.front();
+    uint costoPrev = G.costos[u][w];
+    uint costoPost = G.costos[u][v] + G.costos[v][w];
+
+    uint minCosto = costoPost - costoPrev;
+    Vertice pos = w;
+
+    for (uint j = 0; j < H->vertices.size() - 1 ; ++j){
+        u = H->vertices[j];
+        w = H->vertices[j + 1];
+        costoPrev = G.costos[u][w];
+        costoPost = G.costos[u][v] + G.costos[v][w];
+        if (costoPost - costoPrev < minCosto){
+            minCosto = costoPost - costoPrev;
+            pos = w;
         }
     }
 
-    auto it = std::find(H.vertices.begin(), H.vertices.end(), pos);
-    H.vertices.insert(it, v);
-   // for(auto f: H.vertices) if (f==3) std::cout << H.vertices[1] << std::endl;
-    H.costo += minCosto;
+    auto it = std::find(H->vertices.begin(), H->vertices.end(), pos);
+    H->vertices.insert(it, v);
+    H->costo += minCosto;
 }
+
 
 // Circuito AGM(Grafo G) {
 // }
