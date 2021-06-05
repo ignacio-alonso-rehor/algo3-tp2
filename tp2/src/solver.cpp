@@ -74,25 +74,21 @@ Circuito nearestNeighbour(Grafo G)  {
 
  Vertice fSelect(Grafo G, Circuito H, std::vector<uint> marcados) {
      Vertice v = 0;
-     uint costoMax = 0;     
-     for (Vertice u : H.vertices){
-            uint costoMinParcial = std::numeric_limits<int>::max();
-            Vertice min_v = 0;
+     uint costoMax = 0;  
+     for (Vertice u = 1; u < G.vertices + 1; ++u){
+           if (marcados[u] == 0) continue; //solo lo considero si no esta en H
+           uint costoMinParcial = G.costos[u][H.vertices[0]];
+          
+           for (Vertice w : H.vertices){
+               if (u!=w && G.costos[u][w] < costoMinParcial) {
+                   costoMinParcial = G.costos[u][w];
+               }
+           }
 
-            for (Vertice w = 1; w < G.vertices + 1; ++w){
-                if (u != w && marcados[w] == 0) {
-                    if (G.costos[u][w] < costoMinParcial) {
-                        costoMinParcial = G.costos[u][w];
-                        min_v = w;
-                    }
-                }
-            }
-
-            if (costoMinParcial > costoMax) {
-                costoMax = costoMinParcial;
-                v = min_v;
-            }
-            // if(v!=0)std::cout << v << std::endl;
+           if (costoMinParcial > costoMax) {
+               costoMax = costoMinParcial;
+               v = u;
+           }
      }      
      return v;
 }
@@ -121,7 +117,7 @@ void fInsert(Grafo G, Circuito H, Vertice v){
 
     auto it = std::find(H.vertices.begin(), H.vertices.end(), pos);
     H.vertices.insert(it, v);
-    //for(auto f: H.vertices) if (f==3) std::cout << H.vertices[1] << std::endl;
+   // for(auto f: H.vertices) if (f==3) std::cout << H.vertices[1] << std::endl;
     H.costo += minCosto;
 }
 
