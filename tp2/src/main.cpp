@@ -81,9 +81,9 @@ int main(int argc, char *argv[]) {
     }
      else if (s_input_heuristica.compare("FI") == 0) {
          H = farthestInsertion(G);
-     }// else if (s_input_heuristica.compare("AGM")== 0) {
-    //     C = AGM(G); 
-    // }
+     } else if (s_input_heuristica.compare("AGM")== 0) {
+         H = AGM(G); 
+     }
 
     auto end = chrono::steady_clock::now();
 	double totalTime = chrono::duration<double, milli>(end - start).count();

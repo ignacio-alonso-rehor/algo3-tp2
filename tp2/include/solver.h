@@ -9,5 +9,6 @@ Circuito farthestInsertion(Grafo G);
     Vertice fSelect(Grafo G, Circuito H);
     void fInsert(Grafo G, Circuito* H, Vertice v);
 Circuito AGM(Grafo G);
+    std::vector<Vertice> DFS(Grafo G);
 
 #endif // _SOLVER_H_
