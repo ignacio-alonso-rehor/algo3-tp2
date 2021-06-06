@@ -80,12 +80,12 @@ Circuito nearestNeighbour(Grafo G)  {
         if (it != H.vertices.end()) continue;           
         
         Vertice w = H.vertices.front();
-        uint costoMinParcial = G.costos[u][w];//2-1...3-1
-        
+        uint costoMinParcial = G.costos[u][w];
+
         // Buscamos la menor arista hacia un vertice incluido en H.
         for (uint j = 1; j < H.vertices.size(); ++j){
-            w = H.vertices[j];//4
-            if (G.costos[u][w] < costoMinParcial){//2-4...3-4
+            w = H.vertices[j];
+            if (G.costos[u][w] < costoMinParcial){
                 costoMinParcial = G.costos[u][w];
             }            
         }
@@ -130,7 +130,22 @@ Circuito AGM(Grafo G) {
     Circuito H;
     H.costo = 0;
 
-    std::vector<Vertice> recorrido = DFS(G);
+    Grafo T;
+    T.vertices = G.vertices;
+    std::vector<Vertice> aristasArbol = DFS(G, 0); 
+
+    std::vector<uint> b(G.vertices + 1, INF);
+    std::vector<std::vector<uint>> costosAGM(G.vertices + 1, b);
+    T.costos = costosAGM;
+    
+    for (Vertice v = 1; v < aristasArbol.size(); ++v){
+        Vertice w = aristasArbol[v];
+        T.costos[v][w] = G.costos[v][w];
+        T.costos[w][v] = G.costos[w][v];
+        T.aristas++;
+    }
+
+    std::vector<Vertice> recorrido = DFS(T, 1);
 
     H.vertices.push_back(recorrido.front());
     for (uint i = 1; i < recorrido.size(); ++i){
@@ -144,16 +159,13 @@ Circuito AGM(Grafo G) {
     return H;
 }
 
-std::vector<Vertice> DFS(Grafo G) {
+std::vector<Vertice> DFS(Grafo G, uint op) { //op=0 devuelve los padres, sino devuelve el orden.
 
-    //Hago una pasada de DFS sobre G para obtener el AGM
     std::vector<Vertice> pred(G.vertices + 1, 0);
-    std::vector<Vertice> orden(G.vertices + 1, 0);
-    int next = 1;
+    std::vector<Vertice> orden(G.vertices, 0);
     Vertice r = 1;
-
-    pred[r] = 0;
-    orden[r] = next;
+    int next = 1;
+    orden[r - 1] = next;
 
     std::stack<Vertice> pila;
     pila.push(r);
@@ -161,58 +173,16 @@ std::vector<Vertice> DFS(Grafo G) {
     while(!pila.empty()){
         Vertice u = pila.top();
         for (Vertice w = 1; w < G.vertices + 1; ++w) {
-            if (u != w && w != r && pred[w] == 0) {
+            if (u != w && w != r && pred[w] == 0 && G.costos[u][w] != INF) {
                 pred[w] = u;
                 next++;
-                orden[w] = next;
+                orden[w - 1] = next;
                 pila.push(w);
             }
         }
         pila.pop();
     }
-    
-    //Marco las aristas de G que estan en el AGM
-    std::vector<bool> b(G.vertices + 1, false);
-    std::vector<std::vector<bool>> aristasAGM(G.vertices + 1, b);
-    for (uint j = 1; j < G.vertices + 1; ++j){
-        for (uint k = 1; k < G.vertices + 1; ++k){
-            aristasAGM[j][k] = false;
-        }
-    }
 
-    for (Vertice v = 1; v < pred.size(); ++v){
-        aristasAGM[v][pred[v]] = true;
-        aristasAGM[pred[v]][v] = true;
-    }
-
-    //Vuelvo a hacer DFS considerando solo las aristas del AGM
-    std::vector<Vertice> predAGM(G.vertices + 1, 0);
-    std::vector<Vertice> ordenAGM(G.vertices + 1, 0);
-    int nextAGM = 1;
-    Vertice r_AGM = 1;
-
-    predAGM[r_AGM] = 0;
-    ordenAGM[r_AGM] = nextAGM;
-
-    std::stack<Vertice> pilaAGM;
-    pilaAGM.push(r_AGM);
-
-    while(!pilaAGM.empty()){
-        Vertice u = pilaAGM.top();
-        for (Vertice w = 1; w < G.vertices + 1; ++w) {
-            if (u != w && w != r_AGM && predAGM[w] == 0 && aristasAGM[u][w]) {
-                predAGM[w] = u;
-                nextAGM++;
-                ordenAGM[w] = nextAGM;
-                pilaAGM.push(w);
-            }
-        }
-        pilaAGM.pop();
-    }
-
-    std::vector<Vertice> recorrido(G.vertices);
-    for (uint i = 0; i < ordenAGM.size() - 1; ++i){
-        recorrido[i] = ordenAGM[i + 1];
-    }
-    return recorrido;
+    if (op == 0) return pred;
+    else return orden;
 }
