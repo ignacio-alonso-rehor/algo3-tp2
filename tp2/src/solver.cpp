@@ -141,7 +141,7 @@ Circuito AGM(Grafo G) {
     
     for (Vertice v = 1; v < aristasArbol.size(); ++v){
         Vertice w = aristasArbol[v];
-        if (aristasArbol[v] != 0) continue;
+        if (w != 0) continue;
         T.costos[v][w] = G.costos[v][w];
         T.costos[w][v] = G.costos[w][v];
         T.aristas++;
