@@ -134,12 +134,14 @@ Circuito AGM(Grafo G) {
     T.vertices = G.vertices;
     std::vector<Vertice> aristasArbol = DFS(G, 0); 
 
+    //Reconstruyo el AGM con los valores de pred del DFS
     std::vector<uint> b(G.vertices + 1, INF);
     std::vector<std::vector<uint>> costosAGM(G.vertices + 1, b);
     T.costos = costosAGM;
     
     for (Vertice v = 1; v < aristasArbol.size(); ++v){
         Vertice w = aristasArbol[v];
+        if (aristasArbol[v] != 0) continue;
         T.costos[v][w] = G.costos[v][w];
         T.costos[w][v] = G.costos[w][v];
         T.aristas++;
@@ -186,3 +188,22 @@ std::vector<Vertice> DFS(Grafo G, uint op) { //op=0 devuelve los padres, sino de
     if (op == 0) return pred;
     else return orden;
 }
+
+/*
+Circuito tabuSearchS(Grafo G, uint k) {
+    
+    Circuito H = AGM(G);
+    mejorCircuito = H;
+
+    std::vector<Circuito> mem(k);
+
+    while(true) {
+        
+        for (uint i = 0; i < k; ++i){
+            for (uint j = i; j < k + 1; ++j){
+                nuevoCircuito = 2opt()
+            }
+        }
+    }
+
+}*/
