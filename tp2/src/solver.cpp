@@ -125,7 +125,6 @@ void fInsert(Grafo G, Circuito* H, Vertice v){
     H->costo += minCosto;
 }
 
-
 Circuito AGM(Grafo G) {
     Circuito H;
     H.costo = 0;
@@ -134,14 +133,17 @@ Circuito AGM(Grafo G) {
     T.vertices = G.vertices;
     std::vector<Vertice> aristasArbol = DFS(G, 0); 
 
+    uint n = G.vertices;
     //Reconstruyo el AGM con los valores de pred del DFS
+
+    std::vector<std::vector<uint>> costosAGM(G.vertices + 1, std::vector<uint>(n+1, INF));
+
     std::vector<uint> b(G.vertices + 1, INF);
     std::vector<std::vector<uint>> costosAGM(G.vertices + 1, b);
     T.costos = costosAGM;
     
-    for (Vertice v = 1; v < aristasArbol.size(); ++v){
+    for (Vertice v = 2; v < aristasArbol.size(); ++v){
         Vertice w = aristasArbol[v];
-        if (w != 0) continue;
         T.costos[v][w] = G.costos[v][w];
         T.costos[w][v] = G.costos[w][v];
         T.aristas++;
@@ -205,5 +207,73 @@ Circuito tabuSearchS(Grafo G, uint k) {
             }
         }
     }
+
+//2opt
+Circuito 2opt(Circuito H)
+Circuito H = AGM(G); //lo buscaria al circuito aca? o lo hago antes en tabusearch?
+mejorCircuito = H;
+int improvements = 0;
+
+While (improvements < 20) {
+    best_distance = calculateTotalDistance(existing_route) //Aca hay que calcular de vuelta el costo.
+    start_again:
+    for (i = 0; i <= length(G) - 1 && encontro == false; i++) {
+        for (k = i + 1; k <= length(g); k++) {
+            Circuito new_route = 2optSwap(existing_route, i, k)
+            int new_distance = new_route.costo(); // aca tendria que ser algo como new_distance.costo()
+            if (new_distance < best_distance) {
+                existing_route = new_route;
+                best_distance = new_distance
+                encontro == true;
+                goto start_again // esto lo que hace es empezar los ciclos for de vuelta
+            }
+            improvements++;
+        }
+    }
+}
+
+Circuito 2optSwap(route, i, k) {
+    Circuito new_route;
+    1. take route[0] to route[i-1] and add them in order to new_route
+    for (int l = 0; l < i; l++){
+        new_route->vertices.push_back(route->vertices[l])
+    }
+    2. take route[i] to route[k] and add them in reverse order to new_route
+    int copy_k = k;
+    for (int p = i; p < k + 1; p++){
+        new_route->vertices.push_back(route->vertices[copy_k]);
+        copy_k--;
+    }
+    3. take route[k+1] to end and add them in order to new_route
+    for (int b = k+1; b < length(new_route->vertices); b++){
+        new_route->vertices.push_back(route->vertices[b]);
+    }
+
+    H.costo -
+    return new_route;
+}
+
+
+... v1 --- w2 ...
+... v2 --- w1 ...
+
+Costo(H) = (v1, w2) + (v2, w1) + Costo(H*)
+
+...  v1  w2 ...
+       \/
+       /\
+... v2    w1 ...
+
+
+Costo(2optH) = Costo(H) - (v1, w2) - (v2, w1) + (v1, w1) + (v2, w2)
+             = Costo(H*) + 
+
+Ejemplo para 2optSwap
+Example route: A → B → C → D → E → F → G → H → A
+Example parameters: i = 4, k = 7 (starting index 1)
+Contents of new_route by step:
+(A → B → C)
+A → B → C → (G → F → E → D)
+A → B → C → G → F → E → D → (H → A)
 
 }*/
