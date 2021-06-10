@@ -83,34 +83,20 @@ int main(int argc, char *argv[]) {
         H = nearestNeighbour(G);
     } else if (s_input_heuristica.compare("FI") == 0) {
         H = farthestInsertion(G);
-     } else if (s_input_heuristica.compare("AGM")== 0) {
+    } else if (s_input_heuristica.compare("AGM")== 0) {
         H = AGM(G); 
-     } else if (s_input_heuristica.compare("TS")== 0) {
-        H = nearestNeighbour(G);
-        deque<Circuito> tabu;
-        Vecindario N = _2opt(H, G, 1, tabu);
-
-        while (!N.empty()) {
-            Circuito M = N.top();
-
-            for (Vertice v : M.vertices) {
-                cout << v << ' ';
-            }
-            cout << "-> " << M.costo << endl;
-
-            N.pop();
-        }
-
-     }
+    } else if (s_input_heuristica.compare("TS")== 0) {
+        H = tabuSearch(G, 10, 20, 0.2f);
+    }
 
     auto end = chrono::steady_clock::now();
 	double totalTime = chrono::duration<double, milli>(end - start).count();
 
 	clog << totalTime << endl;
-    // cout << H.vertices.size() << ' ' << H.costo << endl;
-	// for (Vertice v : H.vertices) {
-    //     cout << v << ' ';
-    // }
-    // cout << endl;
+    cout << "Tamaño: " << H.vertices.size() << ". Costo: " << H.costo << endl;
+	for (Vertice v : H.vertices) {
+        cout << v << ' ';
+    }
+    cout << endl;
     return EXIT_SUCCESS;
 }

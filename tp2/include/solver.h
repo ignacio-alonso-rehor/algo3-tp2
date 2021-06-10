@@ -13,7 +13,8 @@ void fInsert(Grafo G, Circuito& H, Vertice v);
 Circuito AGM(Grafo G);
 std::vector<Vertice> DFS(Grafo G, uint op);
 
-Vecindario _2opt (Circuito& H, Grafo& G, float p, std::deque<Circuito>& tabu);
+Vecindario _2opt (Circuito& H, Grafo& G, float p);
 Circuito swap(Circuito& H, Grafo& G, uint u, uint w);
+Circuito tabuSearch(Grafo& G, uint M, uint K, float p);
 
 #endif // _SOLVER_H_
