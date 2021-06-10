@@ -277,7 +277,7 @@ Vecindario _2opt(Circuito& H, Grafo& G, float p) {
 
     for (uint i = 1; i < n; ++i) {
         for (uint j = i+1; j < n; ++j) {
-            swaps2opt.push_back(std::make_tuple(swap(H, G, i, j), i, j));
+            swaps2opt.push_back(std::make_tuple(swap(H, G, i, j), std::make_pair(i, j)));
         }
     }
 
@@ -295,8 +295,7 @@ Vecindario _2opt(Circuito& H, Grafo& G, float p) {
     return vecinos2opt;
 }
 
-
-Circuito tabuSearch(Grafo& G, uint M, uint K, float p) {
+Circuito tabooSearch(Grafo& G, uint M, uint K, float p) {
     Circuito H = nearestNeighbour(G);
     Circuito S = H;
 
@@ -339,75 +338,53 @@ Circuito tabuSearch(Grafo& G, uint M, uint K, float p) {
     return S;
 }
 
+Circuito tabooSwapSearch(Grafo& G, uint M, uint K, float p) {
+    Circuito H = nearestNeighbour(G);
+    Circuito S = H;
+
+    std::deque<Indices> memoriaTabu;
+
+    for (uint k = 0; k < K; ++k) {
+
+        Vecindario v2opt = _2opt(H, G, p);        
 
 
-/*
-//2opt
-Circuito 2opt(Circuito H)
-Circuito H = AGM(G); //lo buscaria al circuito aca? o lo hago antes en tabusearch?
-mejorCircuito = H;
-int improvements = 0;
+        // Vemos si los swap asociados a los circuitos de la priority_queue ya
+        // fueron visitados y no cumplen la función de aspiración.
+        // f_asp(H) : Exceptuamos de la restricción tabú si tiene costo menor al
+        // mínimo encontrado hasta ahora.
 
-While (improvements < 20) {
-    best_distance = calculateTotalDistance(existing_route) //Aca hay que calcular de vuelta el costo.
-    start_again:
-    for (i = 0; i <= length(G) - 1 && encontro == false; i++) {
-        for (k = i + 1; k <= length(g); k++) {
-            Circuito new_route = 2optSwap(existing_route, i, k)
-            int new_distance = new_route.costo(); // aca tendria que ser algo como new_distance.costo()
-            if (new_distance < best_distance) {
-                existing_route = new_route;
-                best_distance = new_distance
-                encontro == true;
-                goto start_again // esto lo que hace es empezar los ciclos for de vuelta
-            }
-            improvements++;
+        while ( !v2opt.empty() &&
+                std::count(memoriaTabu.begin(), memoriaTabu.end(), std::get<1>(v2opt.top())) != 0 &&
+                S.costo < std::get<0>(v2opt.top()).costo ) {
+            v2opt.pop();
         }
+
+        // Si todos los swaps del sub-vecindario seleccionado ya fueron visitados,
+        // se sigue con la siguiente iteración. 
+        
+        if (v2opt.empty()) continue;
+        
+        H = std::get<0>(v2opt.top());
+        Indices I = std::get<1>(v2opt.top());
+
+        // Nos fijamos si la memoria tabú está a máxima capacidad, y en ese caso
+        // removemos el swap más viejo y agregamos el más reciente.
+
+        if (memoriaTabu.size() == M)
+            memoriaTabu.pop_back();
+
+
+        // Notar que en caso de que el swap seleccionado cumpla la función de
+        // aspiración, este se encontrará dos veces en la memoria tabú. Esto
+        // implicaría que ese swap no podrá ser seleccionado (siempre y cuando 
+        // no cumpla nuevamente la función de aspiración) únicamente cuando
+        // esta última inserción haya sido removida de la memoria.
+        
+        memoriaTabu.push_front(I);
+
+        if (H.costo < S.costo) S = H;
     }
+
+    return S;
 }
-
-Circuito 2optSwap(route, i, k) {
-    Circuito new_route;
-    1. take route[0] to route[i-1] and add them in order to new_route
-    for (int l = 0; l < i; l++){
-        new_route->vertices.push_back(route->vertices[l])
-    }
-    2. take route[i] to route[k] and add them in reverse order to new_route
-    int copy_k = k;
-    for (int p = i; p < k + 1; p++){
-        new_route->vertices.push_back(route->vertices[copy_k]);
-        copy_k--;
-    }
-    3. take route[k+1] to end and add them in order to new_route
-    for (int b = k+1; b < length(new_route->vertices); b++){
-        new_route->vertices.push_back(route->vertices[b]);
-    }
-
-    H.costo -
-    return new_route;
-}
-
-
-... v1 --- w2 ...
-... v2 --- w1 ...
-
-Costo(H) = (v1, w2) + (v2, w1) + Costo(H*)
-
-...  v1  w2 ...
-       \/
-       /\
-... v2    w1 ...
-
-
-Costo(2optH) = Costo(H) - (v1, w2) - (v2, w1) + (v1, w1) + (v2, w2)
-             = Costo(H*) + 
-
-Ejemplo para 2optSwap
-Example route: A → B → C → D → E → F → G → H → A
-Example parameters: i = 4, k = 7 (starting index 1)
-Contents of new_route by step:
-(A → B → C)
-A → B → C → (G → F → E → D)
-A → B → C → G → F → E → D → (H → A)
-
-}*/

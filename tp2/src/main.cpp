@@ -49,8 +49,8 @@ int main(int argc, char *argv[]) {
 		{"NN", "Nearest Neighbour"},
 		{"FI", "Farthest Insertion"},
 		{"AGM", "Árbol Generador Mínimo"},
-        {"TS", "Tabú Search"},
-
+        {"TS-C", "Tabú Search con memoria de soluciones visitadas"},
+        {"TS-S", "Tabú Search con memoria de swaps utilizados"},
 	};
 
     if (argc < 2) {
@@ -83,10 +83,12 @@ int main(int argc, char *argv[]) {
         H = nearestNeighbour(G);
     } else if (s_input_heuristica.compare("FI") == 0) {
         H = farthestInsertion(G);
-    } else if (s_input_heuristica.compare("AGM")== 0) {
+    } else if (s_input_heuristica.compare("AGM") == 0) {
         H = AGM(G); 
-    } else if (s_input_heuristica.compare("TS")== 0) {
-        H = tabuSearch(G, 10, 20, 0.5f);
+    } else if (s_input_heuristica.compare("TS-C") == 0) {
+        H = tabooSearch(G, 10, 20, 0.5f);
+    } else if (s_input_heuristica.compare("TS-S") == 0) {
+        H = tabooSwapSearch(G, 10, 20, 0.5f);
     }
 
     auto end = chrono::steady_clock::now();

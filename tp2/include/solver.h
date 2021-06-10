@@ -17,6 +17,7 @@ Grafo Prim(Grafo G);
 
 Vecindario _2opt (Circuito& H, Grafo& G, float p);
 Circuito swap(Circuito& H, Grafo& G, uint u, uint w);
-Circuito tabuSearch(Grafo& G, uint M, uint K, float p);
+Circuito tabooSearch(Grafo& G, uint M, uint K, float p);
+Circuito tabooSwapSearch(Grafo& G, uint M, uint K, float p);
 
 #endif // _SOLVER_H_
