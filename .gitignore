@@ -1,8 +1,7 @@
 obj/
 tp2/TSP
 
-informe/
-!informe/informe.pdf
-!informe/*.tex
-!informe/build.sh
-!informe/clean.sh
+informe/*.aux
+informe/*.log
+informe/*.fls
+informe/*.fdb_latexmk
