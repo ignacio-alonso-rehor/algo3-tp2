@@ -1,6 +1,9 @@
 #include <algorithm>
 #include <iostream>
 #include <stack>
+#include <queue>
+#include <set>
+#include <random>
 
 #include "solver.h"
 #include "types.h"
@@ -38,56 +41,54 @@ Circuito nearestNeighbour(Grafo G)  {
     return H;
 }
 
- Circuito farthestInsertion(Grafo G) {
-     Circuito H;
-     H.costo = 0;
+Circuito farthestInsertion(Grafo G) {
+    Circuito H;
+    H.costo = 0;
 
-     H.vertices.push_back(1);
+    H.vertices.push_back(1);
 
-     Vertice w = initFarthest(G, H);
-     H.vertices.push_back(w);
-     H.costo += G.costos[1][w]; 
+    Vertice w = initFarthest(G, H);
+    H.vertices.push_back(w);
+    H.costo += 2 * G.costos[1][w]; 
 
-     while(H.vertices.size() < G.vertices) {
-         Vertice v = fSelect(G, H);         
-         fInsert(G, &H, v);
-     }
+    while(H.vertices.size() < G.vertices) {
+        Vertice v = fSelect(G, H);         
+        fInsert(G, H, v);
+    }
 
-     H.costo += G.costos[H.vertices.back()][H.vertices.front()];
+    //H.costo += G.costos[H.vertices.back()][H.vertices.front()];
 
-     return H;
- }
+    return H;
+}
 
- Vertice initFarthest(Grafo G, Circuito H) {
-     Vertice w = 0;
-     uint costoMax = 0;
-     for (Vertice u = 2; u < G.vertices + 1; ++u) {
-         if (G.costos[1][u] > costoMax) {
-             costoMax = G.costos[1][u];
-             w = u;
-         }
-     }
-     return w;
- }
+Vertice initFarthest(Grafo G, Circuito H) {
+    Vertice w = 0;
+    uint costoMax = 0;
+    for (Vertice u = 2; u < G.vertices + 1; ++u) {
+        if (G.costos[1][u] > costoMax) {
+            costoMax = G.costos[1][u];
+            w = u;
+        }
+    }
+    return w;
+}
 
- Vertice fSelect(Grafo G, Circuito H) {
-     Vertice v = 1;
-     uint costoMax = 0;  
-     for (Vertice u = 1; u < G.vertices + 1; ++u){
+Vertice fSelect(Grafo G, Circuito H) {
+    Vertice v = 1;
+    uint costoMax = 0;
 
+    for (Vertice u = 1; u < G.vertices + 1; ++u) {
         // Iteramos sobre todos los vértices todavía no incluidos en H.
         auto it = std::find(H.vertices.begin(), H.vertices.end(), u); 
-        if (it != H.vertices.end()) continue;           
-        
-        Vertice w = H.vertices.front();
-        uint costoMinParcial = G.costos[u][w];
+        if (it != H.vertices.end()) continue;
+
+        uint costoMinParcial = INF;
 
         // Buscamos la menor arista hacia un vertice incluido en H.
-        for (uint j = 1; j < H.vertices.size(); ++j){
-            w = H.vertices[j];
+        for (Vertice w : H.vertices) {
             if (G.costos[u][w] < costoMinParcial){
                 costoMinParcial = G.costos[u][w];
-            }            
+            }
         }
 
         // Nos quedamos con la mas lejana
@@ -95,23 +96,22 @@ Circuito nearestNeighbour(Grafo G)  {
             costoMax = costoMinParcial;
             v = u;
         }
-     }
-     return v;
+    }
+    return v;
 }
 
-void fInsert(Grafo G, Circuito* H, Vertice v){
-
-    Vertice u = H->vertices.back();
-    Vertice w = H->vertices.front();
+void fInsert(Grafo G, Circuito& H, Vertice v) {
+    Vertice u = H.vertices.back();
+    Vertice w = H.vertices.front();
     int costoPrev = G.costos[u][w];
     int costoPost = G.costos[u][v] + G.costos[v][w];
 
     int minCosto = costoPost - costoPrev;
     Vertice pos = w;
 
-    for (uint j = 0; j < H->vertices.size() - 1 ; ++j){
-        u = H->vertices[j];
-        w = H->vertices[j + 1];
+    for (uint j = 0; j < H.vertices.size() - 1 ; ++j){
+        u = H.vertices[j];
+        w = H.vertices[j + 1];
         costoPrev = G.costos[u][w];
         costoPost = G.costos[u][v] + G.costos[v][w];
         if (costoPost - costoPrev < minCosto){
@@ -120,9 +120,10 @@ void fInsert(Grafo G, Circuito* H, Vertice v){
         }
     }
 
-    auto it = std::find(H->vertices.begin(), H->vertices.end(), pos);
-    H->vertices.insert(it, v);
-    H->costo += minCosto;
+    auto it = std::find(H.vertices.begin(), H.vertices.end(), pos);
+    if (it == H.vertices.begin()) H.vertices.push_back(v);
+    else H.vertices.insert(it, v);
+    H.costo += minCosto;
 }
 
 Circuito AGM(Grafo G) {
@@ -130,16 +131,13 @@ Circuito AGM(Grafo G) {
     H.costo = 0;
 
     Grafo T;
-    T.vertices = G.vertices;
+    uint n = G.vertices;
+    T.vertices = n;
+
     std::vector<Vertice> aristasArbol = DFS(G, 0); 
 
-    uint n = G.vertices;
     //Reconstruyo el AGM con los valores de pred del DFS
-
-    std::vector<std::vector<uint>> costosAGM(G.vertices + 1, std::vector<uint>(n+1, INF));
-
-    std::vector<uint> b(G.vertices + 1, INF);
-    std::vector<std::vector<uint>> costosAGM(G.vertices + 1, b);
+    std::vector<std::vector<uint>> costosAGM(n+1, std::vector<uint>(n+1, INF));
     T.costos = costosAGM;
     
     for (Vertice v = 2; v < aristasArbol.size(); ++v){
@@ -152,7 +150,7 @@ Circuito AGM(Grafo G) {
     std::vector<Vertice> recorrido = DFS(T, 1);
 
     H.vertices.push_back(recorrido.front());
-    for (uint i = 1; i < recorrido.size(); ++i){
+    for (uint i = 1; i < recorrido.size(); ++i) {
         Vertice u = recorrido[i-1];
         Vertice w = recorrido[i];
         H.vertices.push_back(w);
@@ -164,7 +162,6 @@ Circuito AGM(Grafo G) {
 }
 
 std::vector<Vertice> DFS(Grafo G, uint op) { //op=0 devuelve los padres, sino devuelve el orden.
-
     std::vector<Vertice> pred(G.vertices + 1, 0);
     std::vector<Vertice> orden(G.vertices, 0);
     Vertice r = 1;
@@ -191,23 +188,70 @@ std::vector<Vertice> DFS(Grafo G, uint op) { //op=0 devuelve los padres, sino de
     else return orden;
 }
 
-/*
-Circuito tabuSearchS(Grafo G, uint k) {
-    
-    Circuito H = AGM(G);
-    mejorCircuito = H;
+// Circuito tabuSearchSoluciones(Grafo G, uint k) {
+//     Circuito H = nearestNeighbour(G);
+//     std::queue<Circuito> mem;
 
-    std::vector<Circuito> mem(k);
-
-    while(true) {
+//     while(true) {
         
-        for (uint i = 0; i < k; ++i){
-            for (uint j = i; j < k + 1; ++j){
-                nuevoCircuito = 2opt()
-            }
+//         for (uint i = 0; i < k; ++i){
+//             for (uint j = i; j < k + 1; ++j){
+//                 nuevoCircuito = 2opt()
+//             }
+//         }
+//     }
+// }
+
+// Circuito tabuSearchEstructura() {
+//     return Circuito;
+// };
+
+Circuito swap(Circuito& H, Grafo& G, uint i, uint j) {
+    Circuito N = H;
+    N.costo = 0;
+
+    auto begin = std::next(N.vertices.begin(), i);
+    auto end = std::next(N.vertices.begin(), j);
+
+    std::reverse(begin, ++end);
+
+    for (uint k = 0; k < N.vertices.size(); ++k) {
+        Vertice v = N.vertices[k];
+        Vertice w = N.vertices[(k+1) % N.vertices.size()];
+        N.costo += G.costos[v][w];
+    }
+
+    return N;
+}
+
+// PRE = {0 <= p <= 1}
+Vecindario _2opt (Circuito& H, Grafo& G, float p, std::deque<Circuito>& tabu) {
+    Vecindario vecinos2opt;
+    std::set<Circuito> circuitosSwaps;
+    uint n = G.vertices;
+
+    for (uint i = 1; i < n; ++i) {
+        for (uint j = i+1; j < n; ++j) {
+            circuitosSwaps.insert(swap(H, G, i, j));
         }
     }
 
+    std::random_device rd;
+    std::default_random_engine rng(rd());
+    std::shuffle(circuitosSwaps.begin(), circuitosSwaps.end(), rng);
+
+    auto itVecino = circuitosSwaps.begin();
+    while ((float) vecinos2opt.size() / ((n-1)*(n-2)/2) < p &&
+            itVecino != circuitosSwaps.end()) {
+        if (std::count(tabu.begin(), tabu.end(), *itVecino) == 0)
+            vecinos2opt.push(*itVecino);
+        itVecino++;
+    }
+
+    return vecinos2opt;
+}
+
+/*
 //2opt
 Circuito 2opt(Circuito H)
 Circuito H = AGM(G); //lo buscaria al circuito aca? o lo hago antes en tabusearch?

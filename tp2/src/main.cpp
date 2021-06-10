@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <chrono>
+#include <queue>
 
 #include "types.h"
 #include "solver.h"
@@ -48,6 +49,8 @@ int main(int argc, char *argv[]) {
 		{"NN", "Nearest Neighbour"},
 		{"FI", "Farthest Insertion"},
 		{"AGM", "Árbol Generador Mínimo"},
+        {"TS", "Tabú Search"},
+
 	};
 
     if (argc < 2) {
@@ -78,21 +81,36 @@ int main(int argc, char *argv[]) {
     
     if (s_input_heuristica.compare("NN") == 0) {
         H = nearestNeighbour(G);
-    }
-     else if (s_input_heuristica.compare("FI") == 0) {
-         H = farthestInsertion(G);
+    } else if (s_input_heuristica.compare("FI") == 0) {
+        H = farthestInsertion(G);
      } else if (s_input_heuristica.compare("AGM")== 0) {
-         H = AGM(G); 
+        H = AGM(G); 
+     } else if (s_input_heuristica.compare("TS")== 0) {
+        H = nearestNeighbour(G);
+        deque<Circuito> tabu;
+        Vecindario N = _2opt(H, G, 1, tabu);
+
+        while (!N.empty()) {
+            Circuito M = N.top();
+
+            for (Vertice v : M.vertices) {
+                cout << v << ' ';
+            }
+            cout << "-> " << M.costo << endl;
+
+            N.pop();
+        }
+
      }
 
     auto end = chrono::steady_clock::now();
 	double totalTime = chrono::duration<double, milli>(end - start).count();
 
 	clog << totalTime << endl;
-    cout << H.vertices.size() << ' ' << H.costo << endl;
-	for (Vertice v : H.vertices) {
-        cout << v << ' ';
-    }
-    cout << endl;
+    // cout << H.vertices.size() << ' ' << H.costo << endl;
+	// for (Vertice v : H.vertices) {
+    //     cout << v << ' ';
+    // }
+    // cout << endl;
     return EXIT_SUCCESS;
 }
