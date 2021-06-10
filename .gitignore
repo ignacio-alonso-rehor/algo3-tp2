@@ -1,9 +1,8 @@
-build
-main
-/main.*
-!main.cpp
-!main_debugging.cpp
-CMakeFiles
-
 obj/
 tp2/TSP
+
+informe/
+!informe/informe.pdf
+!informe/*.tex
+!informe/build.sh
+!informe/clean.sh
