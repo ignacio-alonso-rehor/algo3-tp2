@@ -37,7 +37,7 @@ typedef struct s_circuito{
 // typedef std::priority_queue<Circuito, std::vector<Circuito>, std::greater<Circuito>> Vecindario;
 
 typedef std::pair<uint, uint> Indices;
-typedef std::tuple<Circuito, Indices> Swap;
+typedef std::pair<Circuito, Indices> Swap;
 typedef std::priority_queue<Swap, std::vector<Swap>, std::greater<Swap>> Vecindario;
 
 

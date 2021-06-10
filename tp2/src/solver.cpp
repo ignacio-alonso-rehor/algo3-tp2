@@ -277,7 +277,7 @@ Vecindario _2opt(Circuito& H, Grafo& G, float p) {
 
     for (uint i = 1; i < n; ++i) {
         for (uint j = i+1; j < n; ++j) {
-            swaps2opt.push_back(std::make_tuple(swap(H, G, i, j), std::make_pair(i, j)));
+            swaps2opt.push_back(std::make_pair(swap(H, G, i, j), std::make_pair(i, j)));
         }
     }
 
