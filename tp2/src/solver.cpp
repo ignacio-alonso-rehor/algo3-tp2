@@ -130,22 +130,7 @@ Circuito AGM(Grafo G) {
     Circuito H;
     H.costo = 0;
 
-    Grafo T;
-    uint n = G.vertices;
-    T.vertices = n;
-
-    std::vector<Vertice> aristasArbol = DFS(G, 0); 
-
-    //Reconstruyo el AGM con los valores de pred del DFS
-    std::vector<std::vector<uint>> costosAGM(n+1, std::vector<uint>(n+1, INF));
-    T.costos = costosAGM;
-    
-    for (Vertice v = 2; v < aristasArbol.size(); ++v){
-        Vertice w = aristasArbol[v];
-        T.costos[v][w] = G.costos[v][w];
-        T.costos[w][v] = G.costos[w][v];
-        T.aristas++;
-    }
+    Grafo T = Prim(G);
 
     std::vector<Vertice> recorrido = DFS(T, 1);
 
@@ -159,6 +144,42 @@ Circuito AGM(Grafo G) {
     H.costo += G.costos[recorrido.back()][recorrido.front()];
     
     return H;
+}
+
+Grafo Prim(Grafo G) {
+    Grafo T;
+    T.vertices = 0;
+    T.aristas  = 0;
+    uint n = G.vertices;
+    std::vector<std::vector<uint>> costosAGM(n+1, std::vector<uint>(n+1, INF));
+    T.costos = costosAGM;
+
+    std::vector<bool> visitados(n + 1, false);
+
+    T.vertices++;
+    visitados[1] = true;
+    while(T.aristas < n - 1) {
+        uint minDist = INF;
+        Vertice u = 1;
+        Vertice w = 1;
+
+        for (Vertice v = 1; v < n + 1; ++v){
+            if (visitados[v]) continue;
+            for (Vertice z = 1; z < n + 1; ++z){
+                if (!visitados[z] && minDist > G.costos[v][z]){
+                    minDist = G.costos[v][z];
+                    u = v;
+                    w = z;
+                }
+            }
+        }
+        T.costos[u][w] = G.costos[u][w];
+        T.costos[w][u] = G.costos[w][u];
+        visitados[w] = true;
+        T.vertices++;
+        T.aristas++;
+    }
+    return T;
 }
 
 std::vector<Vertice> DFS(Grafo G, uint op) { //op=0 devuelve los padres, sino devuelve el orden.
