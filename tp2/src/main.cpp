@@ -86,14 +86,14 @@ int main(int argc, char *argv[]) {
     } else if (s_input_heuristica.compare("AGM")== 0) {
         H = AGM(G); 
     } else if (s_input_heuristica.compare("TS")== 0) {
-        H = tabuSearch(G, 10, 20, 0.2f);
+        H = tabuSearch(G, 10, 20, 0.5f);
     }
 
     auto end = chrono::steady_clock::now();
 	double totalTime = chrono::duration<double, milli>(end - start).count();
 
 	clog << totalTime << endl;
-    cout << "Tamaño: " << H.vertices.size() << ". Costo: " << H.costo << endl;
+    cout << H.vertices.size() << ' ' << H.costo << endl;
 	for (Vertice v : H.vertices) {
         cout << v << ' ';
     }

@@ -224,7 +224,7 @@ Circuito swap(Circuito& H, Grafo& G, uint i, uint j) {
     return N;
 }
 
-// PRE = {0 <= p <= 1}
+/*// PRE = {0 <= p <= 1}
 Vecindario _2opt (Circuito& H, Grafo& G, float p) {
     Vecindario vecinos2opt;
     std::vector<Circuito> circuitosSwaps;
@@ -247,6 +247,31 @@ Vecindario _2opt (Circuito& H, Grafo& G, float p) {
     }
 
     return vecinos2opt;
+}*/
+
+Vecindario _2opt(Circuito& H, Grafo& G, float p) {
+    Vecindario vecinos2opt;
+    std::vector<Swap> swaps2opt;
+    uint n = G.vertices;
+
+    for (uint i = 1; i < n; ++i) {
+        for (uint j = i+1; j < n; ++j) {
+            swaps2opt.push_back(std::make_tuple(swap(H, G, i, j), i, j));
+        }
+    }
+
+    std::random_device rd;
+    std::default_random_engine rng(rd());
+    std::shuffle(swaps2opt.begin(), swaps2opt.end(), rng);
+
+    auto itVecino = swaps2opt.begin();
+    
+    while ((float) vecinos2opt.size() / ((n-1)*(n-2)/2) < p && itVecino != swaps2opt.end()) {
+        vecinos2opt.push(*itVecino);
+        itVecino++;
+    }
+
+    return vecinos2opt;
 }
 
 
@@ -259,7 +284,6 @@ Circuito tabuSearch(Grafo& G, uint M, uint K, float p) {
     for (uint k = 0; k < K; ++k) {
 
         Vecindario v2opt = _2opt(H, G, p);
-
          
         // Como v2opt es una priority_queue que tiene al circuito de menor costo
         // como raíz, hacemos pop() hasta que encontremos un Circuito que no hayamos
@@ -267,7 +291,7 @@ Circuito tabuSearch(Grafo& G, uint M, uint K, float p) {
         // seleccionado.
         
 
-        while (!v2opt.empty() && std::count(memoriaTabu.begin(), memoriaTabu.end(), v2opt.top()) != 0)
+        while (!v2opt.empty() && std::count(memoriaTabu.begin(), memoriaTabu.end(), std::get<0>(v2opt.top())) != 0)
             v2opt.pop();
 
         // Si todos los circuitos del sub-vecindario seleccionado ya fueron visitados,
@@ -275,7 +299,7 @@ Circuito tabuSearch(Grafo& G, uint M, uint K, float p) {
         
         if (v2opt.empty()) continue;
         
-        H = v2opt.top();
+        H = std::get<0>(v2opt.top());
 
         // Nos fijamos si la cola de circuitos ya visitados está a máxima capacidad, y
         // en ese caso removemos el circuito más viejo y agregamos el más reciente.
