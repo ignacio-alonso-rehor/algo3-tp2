@@ -8,7 +8,7 @@
 #include "solver.h"
 #include "types.h"
 
-Circuito nearestNeighbour(Grafo G)  {
+Circuito nearestNeighbour(Grafo& G)  {
     Circuito H;
 
     // Empezamos el circuito con el vértice 1
@@ -126,13 +126,18 @@ void fInsert(Grafo G, Circuito& H, Vertice v) {
     H.costo += minCosto;
 }
 
-Circuito AGM(Grafo G) {
+Circuito AGM(Grafo& G) {
     Circuito H;
     H.costo = 0;
 
     Grafo T = Prim(G);
 
-    std::vector<Vertice> recorrido = DFS(T, 1);
+    std::vector<Vertice> recorrido = DFS(T);
+
+    for (Vertice v : recorrido) {
+        std::cout << v << ' ';
+    }
+    std::cout << '\n';
 
     H.vertices.push_back(recorrido.front());
     for (uint i = 1; i < recorrido.size(); ++i) {
@@ -146,56 +151,98 @@ Circuito AGM(Grafo G) {
     return H;
 }
 
-Grafo Prim(Grafo G) {
+Grafo Prim(Grafo& G) {
     Grafo T;
-    T.vertices = 0;
     T.aristas  = 0;
     uint n = G.vertices;
     std::vector<std::vector<uint>> costosAGM(n+1, std::vector<uint>(n+1, INF));
     T.costos = costosAGM;
 
-    std::vector<bool> visitados(n + 1, false);
+    std::vector<uint> min(n+1, INF);
+    std::vector<bool> visitados(n+1, false);
+    std::vector<Vertice> padres(n+1, 0);
 
-    T.vertices++;
-    visitados[1] = true;
-    while(T.aristas < n - 1) {
-        uint minDist = INF;
+    min[1] = 0;
+    T.vertices = 1;
+
+    while(T.aristas < n - 1){
         Vertice u = 1;
-        Vertice w = 1;
-
+        uint minCosto = INF;
         for (Vertice v = 1; v < n + 1; ++v){
-            if (visitados[v]) continue;
-            for (Vertice z = 1; z < n + 1; ++z){
-                if (!visitados[z] && minDist > G.costos[v][z]){
-                    minDist = G.costos[v][z];
-                    u = v;
-                    w = z;
-                }
+            if (!visitados[v] && min[v] < minCosto) {
+                minCosto = min[v];
+                u = v;
             }
         }
-        T.costos[u][w] = G.costos[u][w];
-        T.costos[w][u] = G.costos[w][u];
-        visitados[w] = true;
+        visitados[u] = true;
+        for (Vertice v = 1; v < n + 1; ++v){
+            if (!visitados[v] && G.costos[u][v] < min[v]) {
+                padres[v] = u;
+                min[v] = G.costos[u][v];
+            }
+        }
         T.vertices++;
         T.aristas++;
+    }
+
+    for (uint j = 1; j < padres.size(); ++j) {
+        Vertice u = j;
+        Vertice v = padres[j];
+        if (u != 0 && v != 0 && u != v )
+        T.costos[u][v] = G.costos[u][v];
+        T.costos[v][u] = G.costos[v][u];
     }
     return T;
 }
 
-std::vector<Vertice> DFS(Grafo G, uint op) { //op=0 devuelve los padres, sino devuelve el orden.
-    std::vector<Vertice> pred(G.vertices + 1, 0);
+
+/*Grafo PrimAGM (Grafo& G) {
+    uint n = G.vertices;
+    std::vector<std::vector<uint>> C(n+1, std::vector<uint>(n+1, INF));
+    Grafo T = {
+        .vertices = 0,
+        .aristas = 0,
+        .costos = C,
+    };
+
+    std::vector<uint> minimoCostoVisible(n+1, INF);
+    std::vector<bool> verticesAgregados(n+1, false);
+
+    T.vertices += 1;
+    minimoCostoVisible[1] = 0;
+    verticesAgregados[1] = true;
+
+
+    while (T.vertices < n) {
+
+        for (uint i = 1; i < n+1; ++i) {
+            if (!verticesAgregados[i]) continue;
+            for ()
+        }
+    }
+}*/
+
+bool esVecinoValido(Grafo& G, Verice actual, Vertice v) {
+    return 
+}
+
+std::vector<Vertice> DFS(Grafo& G) { //op=0 devuelve los padres, sino devuelve el orden.
+    std::vector<Vertice> pred(G.vertices + 1, INF);
     std::vector<Vertice> orden(G.vertices, 0);
-    Vertice r = 1;
-    int next = 1;
-    orden[r - 1] = next;
+    
+    Vertice raiz = 1;
+    pred[raiz] = 0;
+
+    uint k = 1;
+    orden[raiz - 1] = k;
 
     std::stack<Vertice> pila;
-    pila.push(r);
+    pila.push(raiz);
 
     while(!pila.empty()){
         Vertice u = pila.top();
         for (Vertice w = 1; w < G.vertices + 1; ++w) {
-            if (u != w && w != r && pred[w] == 0 && G.costos[u][w] != INF) {
+            if (G.costos[u][w] != (uint) INF && pred[w] == (uint) INF) {
                 pred[w] = u;
                 next++;
                 orden[w - 1] = next;
@@ -205,9 +252,25 @@ std::vector<Vertice> DFS(Grafo G, uint op) { //op=0 devuelve los padres, sino de
         pila.pop();
     }
 
-    if (op == 0) return pred;
-    else return orden;
+
+    while(!pila.empty()) {
+        Vertice actual = pila.top();
+        Vertice v = 1;
+        while(v < G.vertices + 1 && !esVecinoValido(G, actual, v)) ++v;
+        
+        if (v == G.vertices) pila.pop();
+
+        pila.push(v);
+        orden[v-1] = k;
+        pred[v] = actual;
+        ++k;
+    }
+
+    return orden;
 }
+
+
+
 
 // Circuito tabuSearchSoluciones(Grafo G, uint k) {
 //     Circuito H = nearestNeighbour(G);

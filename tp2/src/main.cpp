@@ -53,15 +53,19 @@ int main(int argc, char *argv[]) {
         {"TS-S", "Tabú Search con memoria de swaps utilizados"},
 	};
 
-    if (argc < 2) {
+    if (argc < 5) {
 		cerr << 
 			"Los cantidad de parámetros ingresados es incorrecta.\n" <<
-			"Uso correcto: ./TSP <heuristica> < <archivo_entrada>\n";
+			"Uso correcto: ./TSP <heuristica> <cantidad_iteraciones> <tamaño_memoria> <porcentaje_vecindad> < <archivo_entrada>\n";
         
         return EXIT_FAILURE;
     }
 
     string s_input_heuristica = argv[1];
+    uint K = stoul(argv[2]);
+    uint M = stoul(argv[3]);
+    float p = (float) (stoi(argv[4])) / 100;
+
     if (m_heuristicas_implementadas.count(s_input_heuristica) == 0) {
         cerr << "Heurística no reconocida. Las opciones implementadas son:\n";
 
@@ -86,9 +90,9 @@ int main(int argc, char *argv[]) {
     } else if (s_input_heuristica.compare("AGM") == 0) {
         H = AGM(G); 
     } else if (s_input_heuristica.compare("TS-C") == 0) {
-        H = tabooSearch(G, 10, 20, 0.5f);
+        H = tabooSearch(G, M, K, p);
     } else if (s_input_heuristica.compare("TS-S") == 0) {
-        H = tabooSwapSearch(G, 10, 20, 0.5f);
+        H = tabooSwapSearch(G, M, K, p);
     }
 
     auto end = chrono::steady_clock::now();
