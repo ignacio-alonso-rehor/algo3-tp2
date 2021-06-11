@@ -3,8 +3,6 @@
 
 #include "types.h"
 
-void imprimirInstancia(Grafo G);
-
 Circuito nearestNeighbour(Grafo& G);
 
 Circuito farthestInsertion(Grafo G);

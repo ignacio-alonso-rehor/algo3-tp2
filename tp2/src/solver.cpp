@@ -8,7 +8,7 @@
 #include "solver.h"
 #include "types.h"
 
-Circuito nearestNeighbour(Grafo& G)  {
+Circuito nearestNeighbour(Grafo& G) {
     Circuito H;
 
     // Empezamos el circuito con el vértice 1
@@ -134,11 +134,6 @@ Circuito AGM(Grafo& G) {
 
     std::vector<Vertice> recorrido = DFS(T);
 
-    for (Vertice v : recorrido) {
-        std::cout << v << ' ';
-    }
-    std::cout << '\n';
-
     H.vertices.push_back(recorrido.front());
     for (uint i = 1; i < recorrido.size(); ++i) {
         Vertice u = recorrido[i-1];
@@ -146,7 +141,7 @@ Circuito AGM(Grafo& G) {
         H.vertices.push_back(w);
         H.costo += G.costos[u][w];
     }
-    H.costo += G.costos[recorrido.back()][recorrido.front()];
+    H.costo += G.costos[recorrido.back()][1];
     
     return H;
 }
@@ -165,7 +160,7 @@ Grafo Prim(Grafo& G) {
     min[1] = 0;
     T.vertices = 1;
 
-    while(T.aristas < n - 1){
+    while(T.aristas < n - 1) {
         Vertice u = 1;
         uint minCosto = INF;
         for (Vertice v = 1; v < n + 1; ++v){
@@ -195,100 +190,39 @@ Grafo Prim(Grafo& G) {
     return T;
 }
 
-
-/*Grafo PrimAGM (Grafo& G) {
-    uint n = G.vertices;
-    std::vector<std::vector<uint>> C(n+1, std::vector<uint>(n+1, INF));
-    Grafo T = {
-        .vertices = 0,
-        .aristas = 0,
-        .costos = C,
-    };
-
-    std::vector<uint> minimoCostoVisible(n+1, INF);
-    std::vector<bool> verticesAgregados(n+1, false);
-
-    T.vertices += 1;
-    minimoCostoVisible[1] = 0;
-    verticesAgregados[1] = true;
-
-
-    while (T.vertices < n) {
-
-        for (uint i = 1; i < n+1; ++i) {
-            if (!verticesAgregados[i]) continue;
-            for ()
-        }
-    }
-}*/
-
-bool esVecinoValido(Grafo& G, Verice actual, Vertice v) {
-    return 
-}
-
-std::vector<Vertice> DFS(Grafo& G) { //op=0 devuelve los padres, sino devuelve el orden.
-    std::vector<Vertice> pred(G.vertices + 1, INF);
+std::vector<Vertice> DFS(Grafo& G) {
     std::vector<Vertice> orden(G.vertices, 0);
+    std::vector<bool> verticesAgregados(G.vertices + 1, false);
     
     Vertice raiz = 1;
-    pred[raiz] = 0;
+    verticesAgregados[raiz] = true;
 
     uint k = 1;
     orden[raiz - 1] = k;
+    k++;
 
     std::stack<Vertice> pila;
     pila.push(raiz);
 
-    while(!pila.empty()){
-        Vertice u = pila.top();
-        for (Vertice w = 1; w < G.vertices + 1; ++w) {
-            if (G.costos[u][w] != (uint) INF && pred[w] == (uint) INF) {
-                pred[w] = u;
-                next++;
-                orden[w - 1] = next;
-                pila.push(w);
-            }
-        }
-        pila.pop();
-    }
-
-
     while(!pila.empty()) {
         Vertice actual = pila.top();
         Vertice v = 1;
-        while(v < G.vertices + 1 && !esVecinoValido(G, actual, v)) ++v;
+
+        while(v < G.vertices + 1 && (verticesAgregados[v] || G.costos[actual][v] == (uint) INF)) ++v;  
         
-        if (v == G.vertices) pila.pop();
+        if (v == G.vertices + 1) {
+            pila.pop();
+            continue;
+        }
 
         pila.push(v);
+        verticesAgregados[v] = true;
         orden[v-1] = k;
-        pred[v] = actual;
         ++k;
     }
 
     return orden;
 }
-
-
-
-
-// Circuito tabuSearchSoluciones(Grafo G, uint k) {
-//     Circuito H = nearestNeighbour(G);
-//     std::queue<Circuito> mem;
-
-//     while(true) {
-        
-//         for (uint i = 0; i < k; ++i){
-//             for (uint j = i; j < k + 1; ++j){
-//                 nuevoCircuito = 2opt()
-//             }
-//         }
-//     }
-// }
-
-// Circuito tabuSearchEstructura() {
-//     return Circuito;
-// };
 
 Circuito swap(Circuito& H, Grafo& G, uint i, uint j) {
     Circuito N = H;
@@ -308,31 +242,7 @@ Circuito swap(Circuito& H, Grafo& G, uint i, uint j) {
     return N;
 }
 
-/*// PRE = {0 <= p <= 1}
-Vecindario _2opt (Circuito& H, Grafo& G, float p) {
-    Vecindario vecinos2opt;
-    std::vector<Circuito> circuitosSwaps;
-    uint n = G.vertices;
-
-    for (uint i = 1; i < n; ++i) {
-        for (uint j = i+1; j < n; ++j) {
-            circuitosSwaps.push_back(swap(H, G, i, j));
-        }
-    }
-
-    std::random_device rd;
-    std::default_random_engine rng(rd());
-    std::shuffle(circuitosSwaps.begin(), circuitosSwaps.end(), rng);
-
-    auto itVecino = circuitosSwaps.begin();
-    while ((float) vecinos2opt.size() / ((n-1)*(n-2)/2) < p && itVecino != circuitosSwaps.end()) {
-        vecinos2opt.push(*itVecino);
-        itVecino++;
-    }
-
-    return vecinos2opt;
-}*/
-
+// PRE = {0 <= p <= 1}
 Vecindario _2opt(Circuito& H, Grafo& G, float p) {
     Vecindario vecinos2opt;
     std::vector<Swap> swaps2opt;
