@@ -10,14 +10,14 @@ Vertice initFarthest(Grafo G, Circuito H);
 Vertice fSelect(Grafo G, Circuito H);
 void fInsert(Grafo G, Circuito& H, Vertice v);
 
-Circuito AGM(Grafo& G);
-std::vector<Vertice> DFS(Grafo& G);
-Grafo Prim(Grafo& G);
-
+Circuito christofidesSimplificado(Grafo& G);
+Grafo AGM(Grafo& G);
+std::vector<Vertice> dfs(Grafo& G);
+void dfsVecinos(Vertice v, Grafo& G, std::vector<bool>& visitados, std::vector<Vertice>& orden);
 
 Vecindario _2opt (Circuito& H, Grafo& G, float p);
 Circuito swap(Circuito& H, Grafo& G, uint u, uint w);
-Circuito tabooSearch(Grafo& G, uint M, uint K, float p);
-Circuito tabooSwapSearch(Grafo& G, uint M, uint K, float p);
+Circuito tabuSearch(Grafo& G, uint M, uint K, float p);
+Circuito tabuSwapSearch(Grafo& G, uint M, uint K, float p);
 
 #endif // _SOLVER_H_

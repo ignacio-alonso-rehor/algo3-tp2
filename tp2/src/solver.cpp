@@ -56,8 +56,6 @@ Circuito farthestInsertion(Grafo G) {
         fInsert(G, H, v);
     }
 
-    //H.costo += G.costos[H.vertices.back()][H.vertices.front()];
-
     return H;
 }
 
@@ -126,27 +124,26 @@ void fInsert(Grafo G, Circuito& H, Vertice v) {
     H.costo += minCosto;
 }
 
-Circuito AGM(Grafo& G) {
+Circuito christofidesSimplificado(Grafo& G) {
     Circuito H;
     H.costo = 0;
 
-    Grafo T = Prim(G);
+    Grafo T = AGM(G);
 
-    std::vector<Vertice> recorrido = DFS(T);
+    H.vertices = dfs(T);
+    // Calculamos el costo del circuito
 
-    H.vertices.push_back(recorrido.front());
-    for (uint i = 1; i < recorrido.size(); ++i) {
-        Vertice u = recorrido[i-1];
-        Vertice w = recorrido[i];
-        H.vertices.push_back(w);
-        H.costo += G.costos[u][w];
+    for (uint i = 0; i < H.vertices.size() - 1; ++i) {
+        Vertice u = H.vertices[i];
+        Vertice v = H.vertices[i+1];
+        H.costo += G.costos[u][v];
     }
-    H.costo += G.costos[recorrido.back()][1];
+    H.costo += G.costos[1][H.vertices.back()];
     
     return H;
 }
 
-Grafo Prim(Grafo& G) {
+Grafo AGM(Grafo& G) {
     Grafo T;
     T.aristas  = 0;
     uint n = G.vertices;
@@ -190,38 +187,25 @@ Grafo Prim(Grafo& G) {
     return T;
 }
 
-std::vector<Vertice> DFS(Grafo& G) {
-    std::vector<Vertice> orden(G.vertices, 0);
-    std::vector<bool> verticesAgregados(G.vertices + 1, false);
-    
-    Vertice raiz = 1;
-    verticesAgregados[raiz] = true;
+std::vector<Vertice> dfs(Grafo& G) {
+    std::vector<bool> visitados(G.vertices +1, false);
+    std::vector<Vertice> orden;
 
-    uint k = 1;
-    orden[raiz - 1] = k;
-    k++;
-
-    std::stack<Vertice> pila;
-    pila.push(raiz);
-
-    while(!pila.empty()) {
-        Vertice actual = pila.top();
-        Vertice v = 1;
-
-        while(v < G.vertices + 1 && (verticesAgregados[v] || G.costos[actual][v] == (uint) INF)) ++v;  
-        
-        if (v == G.vertices + 1) {
-            pila.pop();
-            continue;
-        }
-
-        pila.push(v);
-        verticesAgregados[v] = true;
-        orden[v-1] = k;
-        ++k;
-    }
-
+    dfsVecinos(1, G, visitados, orden);
     return orden;
+}
+
+void dfsVecinos(Vertice v, Grafo& G, std::vector<bool>& visitados, std::vector<Vertice>& orden) {
+    if(visitados[v]) return;
+    
+    visitados[v] = true;
+    orden.push_back(v);
+    
+    for(Vertice w = 1; w < G.vertices + 1; ++w) {
+        // Recorremos los vecinos de cada vértice
+        if (G.costos[v][w] != (uint) INF)
+            dfsVecinos(w, G, visitados, orden);
+    }
 }
 
 Circuito swap(Circuito& H, Grafo& G, uint i, uint j) {
@@ -268,7 +252,7 @@ Vecindario _2opt(Circuito& H, Grafo& G, float p) {
     return vecinos2opt;
 }
 
-Circuito tabooSearch(Grafo& G, uint M, uint K, float p) {
+Circuito tabuSearch(Grafo& G, uint M, uint K, float p) {
     Circuito H = nearestNeighbour(G);
     Circuito S = H;
 
@@ -311,7 +295,7 @@ Circuito tabooSearch(Grafo& G, uint M, uint K, float p) {
     return S;
 }
 
-Circuito tabooSwapSearch(Grafo& G, uint M, uint K, float p) {
+Circuito tabuSwapSearch(Grafo& G, uint M, uint K, float p) {
     Circuito H = nearestNeighbour(G);
     Circuito S = H;
 

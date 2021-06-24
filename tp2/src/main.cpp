@@ -88,11 +88,11 @@ int main(int argc, char *argv[]) {
     } else if (s_input_heuristica.compare("FI") == 0) {
         H = farthestInsertion(G);
     } else if (s_input_heuristica.compare("AGM") == 0) {
-        H = AGM(G); 
+        H = christofidesSimplificado(G); 
     } else if (s_input_heuristica.compare("TS-C") == 0) {
-        H = tabooSearch(G, M, K, p);
+        H = tabuSearch(G, M, K, p);
     } else if (s_input_heuristica.compare("TS-S") == 0) {
-        H = tabooSwapSearch(G, M, K, p);
+        H = tabuSwapSearch(G, M, K, p);
     }
 
     auto end = chrono::steady_clock::now();
